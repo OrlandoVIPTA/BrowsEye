@@ -1,0 +1,55 @@
+{
+  "name": "browseye",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "electron/main.cjs",
+  "description": "BrowsEye by VIPTA GmbH – local universal stereo viewer",
+  "author": "VIPTA GmbH",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "node scripts/copy-vendor.mjs && vite build",
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "npm run preview:screenshot",
+    "desktop": "npm run build && electron . --presentation",
+    "desktop:kiosk": "npm run build && electron . --kiosk",
+    "build:icon": "node scripts/create-icon.cjs build/icon.ico",
+    "package:windows": "npm run build && npm run build:icon && electron-builder --win dir --x64",
+    "preview:screenshot": "npm run build && electron scripts/capture-preview.cjs artifacts/browseye-preview.png"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "^1.1.1",
+    "@sparkjsdev/spark": "2.3.0",
+    "dicom-parser": "1.8.21",
+    "occt-import-js": "0.0.23",
+    "three": "0.186.1",
+    "vite": "8.3.1",
+    "web-ifc": "0.0.78"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.vipta.browseye",
+    "productName": "BrowsEye Player",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        "dir"
+      ],
+      "artifactName": "BrowsEye-Player-${version}-win-${arch}.${ext}"
+    }
+  }
+}

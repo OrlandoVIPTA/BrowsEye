@@ -1,0 +1,19 @@
+node_modules/
+.npm-cache/
+test-results/
+*.log
+
+# Erzeugte Player- und Web-Ausgaben: Sie werden aus dem Quellcode gebaut.
+dist/
+release/
+artifacts/
+output/
+build/
+
+# Lokale Archive und interne Unterlagen gehören nicht in das öffentliche Projekt.
+StereoVisorBrowseYe-Gesamtprojektordner.zip
+VIPTA_StereoVisor_Developer_Guide_EN.pdf
+BROWSEYE-PRODUKT-UND-WEBSITESTRATEGIE.md
+BROWSEYE-WEBGL-DEMO-VEROEFFENTLICHEN.md
+CAD2VR-UNREAL-STEREO-HANDOFF.md
+StereoVisor-Player/offline-package/node-installer/

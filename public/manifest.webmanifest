@@ -1,0 +1,12 @@
+{
+  "name": "BrowsEye by VIPTA GmbH",
+  "short_name": "BrowsEye",
+  "description": "Lokale und webfähige 3D-Ausstellung für Digital Twins und StereoVisor.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#10191e",
+  "theme_color": "#10191e",
+  "icons": [
+    { "src": "/eye.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

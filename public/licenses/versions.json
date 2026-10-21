@@ -1,0 +1,9 @@
+{
+  "@mediapipe/tasks-vision": "^1.1.1",
+  "@sparkjsdev/spark": "2.3.0",
+  "dicom-parser": "1.8.21",
+  "occt-import-js": "0.0.23",
+  "three": "0.186.1",
+  "vite": "8.3.1",
+  "web-ifc": "0.0.78"
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "browseye-exhibit/1",
+  "id": "vipta.demo.digital-exhibition",
+  "version": "1.0.0",
+  "title": {
+    "de": "Digitaler Ausstellungsraum",
+    "en": "Digital Exhibition Space"
+  },
+  "summary": {
+    "de": "Ein vollständiges Beispiel für ein kuratiertes BrowsEye-Ausstellungs-Paket.",
+    "en": "A complete example of a curated BrowsEye exhibition package."
+  },
+  "source": { "kind": "demo", "id": "atrium" },
+  "metadata": {
+    "institution": "VIPTA GmbH",
+    "category": "Demonstrator",
+    "originalFormat": "Prozedurales Demonstrationsmodell"
+  },
+  "rights": {
+    "status": "demo-content",
+    "holder": "VIPTA GmbH",
+    "credit": "BrowsEye Preview · kein Museumsobjekt",
+    "usage": {
+      "de": "Nur zur Demonstration der Software.",
+      "en": "For software demonstration only."
+    }
+  },
+  "media": [
+    {
+      "type": "image",
+      "asset": "media/browseye-mark.png",
+      "alt": {
+        "de": "BrowsEye-Symbol für die Demonstrationsausstellung",
+        "en": "BrowsEye mark for the demonstration exhibition"
+      }
+    }
+  ],
+  "story": [
+    {
+      "id": "overview",
+      "title": { "de": "Der Raum", "en": "The space" },
+      "text": { "de": "Drehen und erkunden Sie das Modell frei.", "en": "Rotate and explore the model freely." },
+      "camera": { "target": [0, 1.8, 0], "distance": 10 }
+    },
+    {
+      "id": "atrium",
+      "title": { "de": "Der Lichthof", "en": "The atrium" },
+      "text": { "de": "Die offene Mitte verbindet die Geschosse.", "en": "The open centre connects the floors." },
+      "camera": { "target": [0, 2.2, 0], "distance": 5.5 }
+    }
+  ],
+  "presentation": { "autoRotate": false, "preferredStereo": "rows", "idleResetSeconds": 90 }
+}
