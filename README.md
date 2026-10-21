@@ -5,6 +5,12 @@
 
 BrowsEye ist die lokale und webfähige Präsentationsschicht für 3D-Exponate und Digital Twins. Ein Exponat kann auf einem normalen Bildschirm, in einem Browser, im Museums-Kiosk oder stereoskopisch auf einem StereoVisor gezeigt werden.
 
+## Offene Developer Community
+
+Dieser Quellcode darf ausdrücklich heruntergeladen, untersucht und als technische Idee diskutiert werden. Wir laden Museen, Digitalisierungspartner, CAD-/BIM-Anbieter, Entwicklerinnen und Entwickler sowie Teams mit eigenen Stereo-Lösungen ein, ihn zu testen und Rückmeldungen oder Verbesserungen zu teilen.
+
+BrowsEye zeigt einen möglichen Ansatz für offene 3D-, Stereo- und Handsteuerungs-Workflows. Es ist keine fertige Antwort auf alle Anforderungen und kein Produktversprechen. Gerade deshalb sind praktische Erfahrungen mit anderen Displays, Viewern, Datenformaten und Stereo-Pipelines willkommen.
+
 ## Grafik-Technik: WebGL / OpenGL ES
 
 Die Browser-Ansicht verwendet **WebGL** über Three.js. WebGL ist die Web-Grafikschnittstelle der OpenGL-ES-Familie und nutzt die Grafikhardware des jeweiligen Geräts. Dieses Projekt ist keine offizielle OpenGL- oder Khronos-Group-Software und wird von ihnen weder bereitgestellt noch unterstützt.
