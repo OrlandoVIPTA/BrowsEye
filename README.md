@@ -1,6 +1,13 @@
 # BrowsEye by VIPTA GmbH
 
+> **Öffentliche Entwicklungs-Preview · nicht für den kommerziellen Einsatz**  
+> Dieser Stand dient Entwicklung, Tests, Forschung und der technischen Partner-Evaluierung. Er ist kein fertiges Produkt, kein Angebot und keine Freigabe für einen kommerziellen Betrieb. Details stehen in [LICENSE](LICENSE).
+
 BrowsEye ist die lokale und webfähige Präsentationsschicht für 3D-Exponate und Digital Twins. Ein Exponat kann auf einem normalen Bildschirm, in einem Browser, im Museums-Kiosk oder stereoskopisch auf einem StereoVisor gezeigt werden.
+
+## Grafik-Technik: WebGL / OpenGL ES
+
+Die Browser-Ansicht verwendet **WebGL** über Three.js. WebGL ist die Web-Grafikschnittstelle der OpenGL-ES-Familie und nutzt die Grafikhardware des jeweiligen Geräts. Dieses Projekt ist keine offizielle OpenGL- oder Khronos-Group-Software und wird von ihnen weder bereitgestellt noch unterstützt.
 
 Die Software lädt keine Dateien in eine Cloud hoch. Für professionelle Ausstellungen werden geprüfte Ausstellungs-Pakete verwendet; Originaldaten bleiben beim Museum oder beim Digitalisierungspartner.
 
@@ -24,7 +31,7 @@ Für eine ruhige Ausstellung sollte jeweils nur eine Person gleichzeitig steuern
 
 Die fertige Workstation-Anwendung liegt unter `release/win-unpacked/BrowsEye Player.exe`. `Start-BrowsEye.bat` startet weiterhin die Browser-Version für Vorschau und Entwicklung. `npm run build` erzeugt die lokale Browser-Version unter `dist/`. `npm start` startet diese Version auf `http://localhost:4174`.
 
-## Produktbausteine
+## Entwicklungsbausteine
 
 - **BrowsEye Player:** Offline-Player für StereoVisor, Kiosk und Ausstellung.
 - **BrowsEye Web:** Derselbe Inhalt für Museum-Webseite, Tablet und QR-Code.
