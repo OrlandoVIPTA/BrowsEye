@@ -215,10 +215,12 @@ app.commandLine.appendSwitch('disable-renderer-backgrounding');
 
 app.whenReady().then(async () => {
   // BrowsEye asks for a camera only after the operator explicitly enables the
-  // local gesture control. Keep every other desktop permission denied.
-  const allowLocalCamera = (webContents, permission) => permission === 'media' && webContents.getURL().startsWith('http://127.0.0.1:');
-  session.defaultSession.setPermissionCheckHandler((webContents, permission) => allowLocalCamera(webContents, permission));
-  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => callback(allowLocalCamera(webContents, permission)));
+  // local gesture control. Pointer Lock is likewise only granted to the
+  // loopback Player origin, enabling the expected FPS-style mouse look.
+  const allowLocalPlayerPermission = (webContents, permission) =>
+    ['media', 'pointerLock'].includes(permission) && webContents.getURL().startsWith('http://127.0.0.1:');
+  session.defaultSession.setPermissionCheckHandler((webContents, permission) => allowLocalPlayerPermission(webContents, permission));
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => callback(allowLocalPlayerPermission(webContents, permission)));
   const port = await startLocalServer();
   ipcMain.handle('browseye:environment', () => ({ desktop: true, kiosk, presentation, version: app.getVersion() }));
   ipcMain.handle('browseye:xgrids-config', () => readExternalXgridsConfig());

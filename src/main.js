@@ -161,7 +161,8 @@ function updateNavigationUi(){
   $('navigation-reset').disabled=!state.hasSpawn;
   const controller=controllerConnected()?'Controller erkannt · ':'Kein Controller · ';
   const collision=state.hasCollision?'Wände und Böden folgen der Kollisionsgeometrie.':'Bodenbindung aktiv · für Wände und Treppen Kollisionsmodell ergänzen.';
-  $('navigation-status').textContent=mode==='orbit'?`${controller}WASD, Maus und Sticks werden erst im Begehungsmodus verwendet.`:`${controller}WASD / linker Stick: bewegen · Maus / rechter Stick: umsehen · Shift oder A: schneller. ${mode==='fly'?'Q/E und Trigger: Höhe.':collision}`;
+  const mouse=state.pointerLocked?'Freier Mausblick aktiv · Esc beendet ihn.':state.pointerLockBlocked?'Maus: linke Taste halten und ziehen · der Browser blockiert nur den freien Gaming-Mausblick.':'Maus: in die Szene klicken und ziehen · freier Gaming-Mausblick wird versucht.';
+  $('navigation-status').textContent=mode==='orbit'?`${controller}WASD, Maus und Sticks werden erst im Begehungsmodus verwendet.`:`${controller}WASD / linker Stick: bewegen · ${mouse} Rechter Stick: umsehen · Shift oder A: schneller. ${mode==='fly'?'Q/E und Trigger: Höhe.':collision}`;
 }
 function setNavigationFromUi(mode){
   if(mode!=='orbit'&&handTracking?.running){handTracking.stop('Begehungsmodus aktiv');$('gesture-toggle').classList.remove('active');$('gesture-toggle').innerHTML=`${icon('camera')} Webcam einschalten`;$('gesture-preview').hidden=true;}

@@ -18,6 +18,8 @@ const buttonValue = (buttons, index) => {
   return typeof button === 'number' ? button : Number(button?.value || 0);
 };
 
+const combineAxis = (stick, buttonAxis) => Math.abs(stick) > .001 ? stick : buttonAxis;
+
 /**
  * Normalises a W3C Gamepad object into navigation intentions. It does not
  * depend on a manufacturer SDK and is safe to call with absent/partial pads.
@@ -29,16 +31,23 @@ export function gamepadNavigationFrame(gamepad, { deadzone = .16 } = {}) {
   const leftY = applyDeadzone(axes[1], deadzone);
   const rightX = applyDeadzone(axes[2], deadzone);
   const rightY = applyDeadzone(axes[3], deadzone);
+  // D-pad remains useful for accessibility and controllers whose left stick
+  // is worn or temporarily unavailable. Standard mapping: 12/13/14/15 are
+  // up/down/left/right.
+  const dpadX = buttonValue(gamepad.buttons, 15) - buttonValue(gamepad.buttons, 14);
+  const dpadForward = buttonValue(gamepad.buttons, 12) - buttonValue(gamepad.buttons, 13);
   // The standard mapping reports a pushed-up stick as a negative Y value.
   const rise = applyDeadzone(buttonValue(gamepad.buttons, 7) - buttonValue(gamepad.buttons, 6), deadzone);
   return {
     connected: true,
-    moveX: leftX,
-    forward: -leftY,
+    moveX: combineAxis(leftX, dpadX),
+    forward: combineAxis(-leftY, dpadForward),
     lookX: rightX,
     lookY: rightY,
     rise,
-    sprint: buttonValue(gamepad.buttons, 0) > .5 || buttonValue(gamepad.buttons, 5) > .5,
+    // A / Cross, right bumper or pressing the left stick: all intuitive
+    // sprint affordances on Xbox, PlayStation and many generic controllers.
+    sprint: buttonValue(gamepad.buttons, 0) > .5 || buttonValue(gamepad.buttons, 5) > .5 || buttonValue(gamepad.buttons, 10) > .5,
   };
 }
 

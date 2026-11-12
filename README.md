@@ -35,6 +35,23 @@ Für sehr große Villen, Yachten, Hotels und Punktwolken gibt es jetzt den Butto
 
 In **Perspektive → Begehung & Controller** stehen drei Modi zur Verfügung: Objekt erkunden, Ego-Perspektive am Boden und freies Fliegen. Im Ego-Modus: `WASD` gehen, Maus/rechter Stick umsehen, `Shift` beziehungsweise Controller-Taste A beschleunigen. Linker Stick bewegt; im Flugmodus steuern `Q`/`E` bzw. Trigger die Höhe. Ein exportiertes Kollisionsmodell oder LCC-Kollisionsdaten werden für Wände, Böden und Treppen benötigt; ohne sie hält BrowsEye die Kamera am definierten Boden. Bei gestreamten Meter-Szenen verwendet der Ego-Modus eine stabile reale Stereo-Basis (maximal 64 mm bei 100 % Stereotiefe), statt sie von der Orbit-Kameraentfernung abhängig zu machen.
 
+### Gaming-Steuerung: Maus, Tastatur und Controller
+
+Für eine Begehung zuerst unter **Perspektive → Begehung & Controller** den Modus **Ego-Perspektive am Boden** oder **Freies Fliegen** wählen und anschließend in die 3D-Szene klicken.
+
+| Eingabe | Funktion |
+| --- | --- |
+| `W` `A` `S` `D`, linker Stick oder Steuerkreuz | bewegen |
+| Maus oder rechter Stick | Blickrichtung / Sichtfeld |
+| `Shift`, A/Cross, rechter Schulterknopf oder linker Stick gedrückt | schneller bewegen |
+| `Q`/`E` oder linker/rechter Trigger | Höhe im freien Flug |
+| `R` | an den definierten Startpunkt zurückkehren |
+| `Esc` | freien Mausblick verlassen |
+
+Nach einem Klick versucht BrowsEye den freien Gaming-Mausblick (**Pointer Lock**) zu aktivieren. Im Windows-Player ist diese Freigabe für die lokale BrowsEye-Szene vorgesehen: Der Mauszeiger verschwindet, und die Blickrichtung lässt sich wie in einem Spiel auch über den Bildschirmrand hinaus steuern. `Esc` gibt den Mauszeiger wieder frei.
+
+Ein Browser, eine eingebettete Vorschau oder eine Sicherheitsrichtlinie kann diesen freien Modus ablehnen. Dann bleibt die Bedienung trotzdem vollständig nutzbar: In der 3D-Szene die **linke Maustaste gedrückt halten und ziehen**, um sich umzusehen. Der rechte Controller-Stick funktioniert unabhängig davon weiter. Der Controller verwendet die übliche System-/Browser-Gamepad-Belegung; bei der ersten Nutzung gegebenenfalls einmal eine Taste drücken. Eine verständliche Fehlerhilfe steht in [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
 ## Berührungsfreie Museumssteuerung
 
 Unter **Perspektive → Berührungsfreie Steuerung** kann eine normale USB-Webcam eingeschaltet werden. Die Kamera darf oberhalb oder unterhalb des Displays sitzen; die Auswahl dient der dokumentierten Stationskonfiguration. MediaPipe verarbeitet die Kamerabilder samt Hand-Landmarken ausschließlich lokal auf der Workstation. Es gibt keinen Upload und keine Cloud-Verbindung.

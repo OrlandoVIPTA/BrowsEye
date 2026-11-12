@@ -19,6 +19,17 @@ test('normalises a standard controller into walking, looking and flying intentio
   assert.equal(frame.sprint, true);
 });
 
+test('supports D-pad walking and standard left-stick-click sprint', () => {
+  const buttons = Array.from({ length: 16 }, () => ({ value: 0 }));
+  buttons[12] = { value: 1 }; buttons[15] = { value: 1 }; buttons[10] = { value: 1 };
+  const frame = gamepadNavigationFrame({ connected: true, axes: [0, 0, .7, -.3], buttons });
+  assert.equal(frame.moveX, 1);
+  assert.equal(frame.forward, 1);
+  assert.ok(frame.lookX > 0);
+  assert.ok(frame.lookY < 0);
+  assert.equal(frame.sprint, true);
+});
+
 test('diagonal walking is normalised and walk mode remains on the ground', () => {
   const walk = movementIntent({ moveX: 1, forward: 1, rise: 1 }, { speed: 4, deltaSeconds: .5, fly: false });
   assert.ok(Math.abs(Math.hypot(walk.right, walk.forward) - 2) < 1e-9);
