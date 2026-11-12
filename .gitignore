@@ -17,3 +17,9 @@ BROWSEYE-PRODUKT-UND-WEBSITESTRATEGIE.md
 BROWSEYE-WEBGL-DEMO-VEROEFFENTLICHEN.md
 CAD2VR-UNREAL-STEREO-HANDOFF.md
 StereoVisor-Player/offline-package/node-installer/
+
+# XGRIDS distributes the LCC Web SDK under its own account/licence. Keep the
+# installation note public, but never add a locally supplied SDK by accident.
+public/vendor/xgrids/*
+!public/vendor/xgrids/README.md
+!public/vendor/xgrids/browseye-xgrids.config.example.js

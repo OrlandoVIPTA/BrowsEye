@@ -24,6 +24,17 @@ Die Software lädt keine Dateien in eine Cloud hoch. Für professionelle Ausstel
 3. Für den StereoVisor unter **Perspektive** das gewünschte Ausgabeformat auswählen.
 4. Das Fenster auf den StereoVisor ziehen und **Präsentieren** wählen.
 
+## Große Streaming-Szenen und Begehung
+
+Für sehr große Villen, Yachten, Hotels und Punktwolken gibt es jetzt den Button **Streaming-Szene**. Er ist bewusst vom normalen Dateidialog getrennt: Der Direktimport bleibt für überschaubare Einzeldateien begrenzt, während eine Streaming-Szene nur die räumlich sichtbaren Detailbereiche von SSD, lokalem Server oder HTTPS nachlädt.
+
+- **BrowsEye Player unter Windows:** Auf **Streaming-Szene → Lokalen Szenenordner wählen** klicken und den Ordner mit `browseye-streaming-scene.json`, `.lcc` oder `.lcc2` auswählen. Der Player stellt ausschließlich diesen gewählten Ordner lokal bereit; er kopiert keine 5-GB-Szene in den Arbeitsspeicher.
+- **BrowsEye Web:** Eine HTTPS- oder lokale HTTP-URL zum Szenenpaket eingeben. Der Host muss CORS für die BrowsEye-Website erlauben.
+- **Offenes Szenenpaket:** gekachelte GLB-Dateien mit LOD, räumlichen Grenzen, Startpunkt und optionalem Kollisionsmodell. Das Schema steht in [STREAMING-SCENES.md](STREAMING-SCENES.md).
+- **XGRIDS LCC/LCC2:** Der Viewer enthält die Anbindung, aber nicht das proprietäre XGRIDS SDK. Es wird mit dem von XGRIDS lizenzierten Web-SDK ergänzt; Anleitung und Abnahmehinweise stehen in [LCC-STREAMING-INTEGRATION.md](LCC-STREAMING-INTEGRATION.md).
+
+In **Perspektive → Begehung & Controller** stehen drei Modi zur Verfügung: Objekt erkunden, Ego-Perspektive am Boden und freies Fliegen. Im Ego-Modus: `WASD` gehen, Maus/rechter Stick umsehen, `Shift` beziehungsweise Controller-Taste A beschleunigen. Linker Stick bewegt; im Flugmodus steuern `Q`/`E` bzw. Trigger die Höhe. Ein exportiertes Kollisionsmodell oder LCC-Kollisionsdaten werden für Wände, Böden und Treppen benötigt; ohne sie hält BrowsEye die Kamera am definierten Boden. Bei gestreamten Meter-Szenen verwendet der Ego-Modus eine stabile reale Stereo-Basis (maximal 64 mm bei 100 % Stereotiefe), statt sie von der Orbit-Kameraentfernung abhängig zu machen.
+
 ## Berührungsfreie Museumssteuerung
 
 Unter **Perspektive → Berührungsfreie Steuerung** kann eine normale USB-Webcam eingeschaltet werden. Die Kamera darf oberhalb oder unterhalb des Displays sitzen; die Auswahl dient der dokumentierten Stationskonfiguration. MediaPipe verarbeitet die Kamerabilder samt Hand-Landmarken ausschließlich lokal auf der Workstation. Es gibt keinen Upload und keine Cloud-Verbindung.
@@ -55,7 +66,7 @@ Die eigentliche Ausstellung arbeitet mit einem kleinen Manifest. Es enthält Tit
 - Revit, SolidWorks, CATIA, GEOVIA, PyMOL- und Schrödinger-Projekte werden noch nicht direkt gelesen. Sie werden über offene Austauschformate oder lizenzierte Konverter angebunden.
 - Medizinische Daten sind ausschließlich eine technische Forschungsansicht und nicht diagnostisch validiert.
 - Die reale Stereo-Qualität muss auf dem jeweiligen StereoVisor, mit dessen Auflösung und OSD-Einstellung, geprüft werden.
-- Große Museumsbestände brauchen anschließend eine Kachel-/Streaming-Stufe; sie sollen nicht als einzelne Rohdatei im Besucher-Viewer landen.
+- Große Museumsbestände müssen als Kachel-/Streaming-Szene veröffentlicht werden; eine einzelne 5-GB-Rohdatei ist kein sinnvoller Besucher-Import.
 
 ## Rechte und Datenhoheit
 

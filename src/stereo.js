@@ -48,17 +48,22 @@ export class StereoOutput {
     this.scene = new T.Scene(); this.scene.add(new T.Mesh(new T.PlaneGeometry(2,2),this.material)); this.camera=new T.Camera();
     this.size = new T.Vector2();
   }
-  render(scene, camera, separation, focus) {
+  /**
+   * `beforeEyeRender` lets streaming renderers prepare camera-specific data.
+   * It is intentionally called separately for both eyes: Gaussian splats and
+   * other view-sorted data must not reuse the centre-camera ordering in stereo.
+   */
+  render(scene, camera, separation, focus, beforeEyeRender) {
     const r=this.renderer; r.getDrawingBufferSize(this.size);
     const [w,h]=[this.size.x,this.size.y];
     updateRig(this.rig,camera,w,h,separation,focus);
-    if(this.mode==='mono'&&!this.calibration){r.setRenderTarget(null);r.render(scene,camera);return;}
+    if(this.mode==='mono'&&!this.calibration){beforeEyeRender?.(camera);r.setRenderTarget(null);r.render(scene,camera);return;}
     const tw=this.mode==='sbs'?Math.max(1,Math.floor(w/2)):w;
     const th=['tb','rows'].includes(this.mode)?Math.max(1,Math.floor(h/2)):h;
     if(this.left.width!==tw||this.left.height!==th){this.left.setSize(tw,th);this.right.setSize(tw,th);}
     if(!this.calibration){
-      r.setRenderTarget(this.left);r.render(scene,this.rig.cameraL);
-      r.setRenderTarget(this.right);r.render(scene,this.rig.cameraR);
+      beforeEyeRender?.(this.rig.cameraL);r.setRenderTarget(this.left);r.render(scene,this.rig.cameraL);
+      beforeEyeRender?.(this.rig.cameraR);r.setRenderTarget(this.right);r.render(scene,this.rig.cameraR);
     }
     const u=this.material.uniforms;u.mode.value=modes[this.mode]??0;u.swap.value=this.swap;u.parity.value=this.parity;u.height.value=h;u.aspect.value=w/h;u.calibration.value=this.calibration;
     r.setRenderTarget(null);r.render(this.scene,this.camera);

@@ -1,0 +1,33 @@
+{
+  "schema": "browseye-streaming-scene/1",
+  "id": "vipta.villa.streaming-example",
+  "version": "1.0.0",
+  "units": "meter",
+  "bounds": { "min": [-85, 0, -70], "max": [85, 32, 70] },
+  "spawn": [0, 1.7, 18],
+  "collision": "collision/villa-navigation.glb",
+  "tiles": [
+    {
+      "id": "exterior-low",
+      "region": "exterior",
+      "lod": 0,
+      "asset": "tiles/exterior-low.glb",
+      "kind": "glb",
+      "bounds": { "min": [-85, 0, -70], "max": [85, 32, 70] },
+      "maxDistance": 2000,
+      "bytes": 48000000,
+      "priority": 1
+    },
+    {
+      "id": "living-room-high",
+      "region": "living-room",
+      "lod": 2,
+      "asset": "tiles/living-room-high.glb",
+      "kind": "glb",
+      "bounds": { "min": [-12, 0, -10], "max": [15, 8, 18] },
+      "maxDistance": 36,
+      "bytes": 96000000,
+      "priority": 5
+    }
+  ]
+}
