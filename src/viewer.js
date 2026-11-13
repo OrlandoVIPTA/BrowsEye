@@ -18,7 +18,7 @@ export class Viewer{
     // Navigation deliberately has no dependency on a specific controller brand.
     // It consumes the browser's standard Gamepad mapping, while an optional
     // streaming/scan adapter can supply accurate collision data synchronously.
-    this.navigation={mode:'orbit',keys:new Set(),yaw:0,pitch:0,speed:1.8,sprintMultiplier:1.8,lookSensitivity:.0022,gamepadLookSensitivity:2.25,deadzone:.16,groundY:0,eyeHeight:1.65,radius:.22,collisionProvider:null,collisionMesh:null,spawn:null,stereoIpd:.064,stereoFocus:2.5,pointerLockBlocked:false};
+    this.navigation={mode:'orbit',keys:new Set(),yaw:0,pitch:0,speed:1.8,sprintMultiplier:1.8,lookSensitivity:.0022,gamepadLookSensitivity:1.65,deadzone:.2,groundY:0,eyeHeight:1.65,radius:.22,collisionProvider:null,collisionMesh:null,spawn:null,stereoIpd:.064,stereoFocus:2.5,pointerLockBlocked:false};
     this._navigationForward=new T.Vector3();this._navigationRight=new T.Vector3();this._navigationDown=new T.Vector3(0,-1,0);this._navigationRaycaster=new T.Raycaster();this._navigationGroundRaycaster=new T.Raycaster();
     this._onNavigationKeyDown=e=>{if(this.navigation.mode==='orbit'||/INPUT|SELECT|TEXTAREA/.test(e.target?.tagName||''))return;if(['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','ShiftLeft','ShiftRight'].includes(e.code)){this.navigation.keys.add(e.code);e.preventDefault();}};
     this._onNavigationKeyUp=e=>{this.navigation.keys.delete(e.code);};
@@ -65,7 +65,10 @@ export class Viewer{
   }
   _stereoParameters(){
     const distance=this.camera.position.distanceTo(this.controls.target);
-    if(this.current?.streaming&&this.navigation.mode!=='orbit'){
+    // An Ego camera has no meaningful orbit distance.  Keep its eye spacing
+    // physically stable for every scene type, otherwise the stereo geometry
+    // jumps as soon as the orbit target is replaced by the forward look point.
+    if(this.navigation.mode!=='orbit'){
       return {separation:this.navigation.stereoIpd*this.strength/100,focus:Math.max(.05,this.navigation.stereoFocus*(1+this.convergence/100))};
     }
     return {separation:distance*this.strength/10000,focus:distance*(1+this.convergence/100)};
@@ -148,6 +151,10 @@ export class Viewer{
       return this.getNavigationState();
     }
     if(nav.mode==='orbit')this._captureNavigationAngles();
+    // An orbit view commonly looks down onto a model.  Carrying that pitch to
+    // an eye-height walk camera feels like a bent horizon, so start each new
+    // ground walk level while preserving the useful left/right heading.
+    if(mode==='walk'&&nav.mode!=='walk'&&settings.levelHorizon!==false)nav.pitch=0;
     nav.mode=mode;this.controls.enabled=false;
     if(settings.reset!==false&&nav.spawn)this.camera.position.copy(nav.spawn);
     if(mode==='walk'&&!nav.collisionProvider)this._snapWalkToGround(this.camera.position);
@@ -183,6 +190,11 @@ export class Viewer{
     nav.groundY=sourceGround*scale+this.root.position.y;
     nav.eyeHeight=Number.isFinite(data.eyeHeight)&&data.eyeHeight>0?data.eyeHeight*scale:T.MathUtils.clamp(1.65*scale,Math.max(.08,this.normalizedSize.y*.08),Math.max(.18,this.normalizedSize.y*.55));
     nav.speed=Number.isFinite(data.walkSpeed)&&data.walkSpeed>0?data.walkSpeed*scale:Math.max(.25,2.4*scale);
+    // Ordinary imports are centred and scaled for presentation.  Convert the
+    // real-world 64 mm eye spacing and comfortable focus distance into that
+    // same presentation space so entering Ego mode does not distort stereo.
+    nav.stereoIpd=Number.isFinite(data.stereoIpd)&&data.stereoIpd>0?data.stereoIpd*scale:.064*scale;
+    nav.stereoFocus=Number.isFinite(data.stereoFocus)&&data.stereoFocus>0?data.stereoFocus*scale:Math.max(.05,2.5*scale);
     nav.collisionProvider=data.collisionProvider||null;nav.collisionMesh=data.collisionMesh?.isObject3D?data.collisionMesh:null;
     if(Array.isArray(data.spawn)&&data.spawn.length===3&&data.spawn.every(Number.isFinite)){
       nav.spawn=new T.Vector3(...data.spawn).multiplyScalar(scale).add(this.root.position);
