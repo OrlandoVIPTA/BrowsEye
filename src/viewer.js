@@ -2,7 +2,7 @@ import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { StereoOutput } from './stereo.js';
 import { disposeObject } from './geometry.js';
-import { gamepadNavigationFrame, movementIntent } from './navigation.js';
+import { detectGamepadProfile, gamepadNavigationFrame, movementIntent } from './navigation.js';
 export class Viewer{
   constructor(container,onStats,onSelect,onError){
     this.container=container;this.scene=new T.Scene();this.scene.background=new T.Color(0x17242a);
@@ -18,7 +18,7 @@ export class Viewer{
     // Navigation deliberately has no dependency on a specific controller brand.
     // It consumes the browser's standard Gamepad mapping, while an optional
     // streaming/scan adapter can supply accurate collision data synchronously.
-    this.navigation={mode:'orbit',keys:new Set(),yaw:0,pitch:0,speed:1.8,sprintMultiplier:1.8,lookSensitivity:.0022,gamepadLookSensitivity:1.65,deadzone:.2,groundY:0,eyeHeight:1.65,radius:.22,collisionProvider:null,collisionMesh:null,spawn:null,stereoIpd:.064,stereoFocus:2.5,pointerLockBlocked:false};
+    this.navigation={mode:'orbit',keys:new Set(),yaw:0,pitch:0,speed:1.8,sprintMultiplier:1.8,lookSensitivity:.0022,gamepadLookSensitivity:1.65,deadzone:.2,groundY:0,eyeHeight:1.65,radius:.22,collisionProvider:null,collisionMesh:null,spawn:null,stereoIpd:.064,stereoFocus:2.5,pointerLockBlocked:false,gamepadId:null,gamepadProfile:'standard'};
     this._navigationForward=new T.Vector3();this._navigationRight=new T.Vector3();this._navigationDown=new T.Vector3(0,-1,0);this._navigationRaycaster=new T.Raycaster();this._navigationGroundRaycaster=new T.Raycaster();
     this._onNavigationKeyDown=e=>{if(this.navigation.mode==='orbit'||/INPUT|SELECT|TEXTAREA/.test(e.target?.tagName||''))return;if(['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','ShiftLeft','ShiftRight'].includes(e.code)){this.navigation.keys.add(e.code);e.preventDefault();}};
     this._onNavigationKeyUp=e=>{this.navigation.keys.delete(e.code);};
@@ -210,17 +210,26 @@ export class Viewer{
   }
   _firstConnectedGamepad(){
     if(typeof navigator==='undefined'||typeof navigator.getGamepads!=='function')return null;
-    return Array.from(navigator.getGamepads()||[]).find(Boolean)||null;
+    return Array.from(navigator.getGamepads()||[]).find(gamepad=>gamepad?.connected)||null;
+  }
+  _gamepadNavigation(){
+    const gamepad=this._firstConnectedGamepad(),nav=this.navigation;
+    const id=gamepad?`${gamepad.index}:${gamepad.id}`:null;
+    if(id!==nav.gamepadId){nav.gamepadId=id;nav.gamepadProfile=gamepad?detectGamepadProfile(gamepad):'standard';}
+    return gamepadNavigationFrame(gamepad,{deadzone:nav.deadzone,profile:nav.gamepadProfile});
   }
   _updateFirstPerson(deltaSeconds){
     if(!deltaSeconds)return;
-    const nav=this.navigation,keys=nav.keys,pad=gamepadNavigationFrame(this._firstConnectedGamepad(),{deadzone:nav.deadzone});
+    const nav=this.navigation,keys=nav.keys,pad=this._gamepadNavigation();
     const keyboardX=(keys.has('KeyD')?1:0)-(keys.has('KeyA')?1:0);
     const keyboardForward=(keys.has('KeyW')?1:0)-(keys.has('KeyS')?1:0);
     const keyboardRise=(keys.has('KeyE')?1:0)-(keys.has('KeyQ')?1:0);
     if(pad.connected&&(pad.lookX||pad.lookY)){nav.yaw-=pad.lookX*nav.gamepadLookSensitivity*deltaSeconds;nav.pitch=T.MathUtils.clamp(nav.pitch-pad.lookY*nav.gamepadLookSensitivity*deltaSeconds,-Math.PI*.48,Math.PI*.48);}
     const sprint=keys.has('ShiftLeft')||keys.has('ShiftRight')||pad.sprint;
-    const intent=movementIntent({moveX:keyboardX+pad.moveX,forward:keyboardForward+pad.forward,rise:keyboardRise+pad.rise},{speed:nav.speed*(sprint?nav.sprintMultiplier:1),deltaSeconds,fly:nav.mode==='fly'});
+    // Trigger input is deliberately discarded on the ground: LT/RT may only
+    // change height in Free Flight, never tilt or move an Ego camera.
+    const rise=nav.mode==='fly'?keyboardRise+pad.rise:0;
+    const intent=movementIntent({moveX:keyboardX+pad.moveX,forward:keyboardForward+pad.forward,rise},{speed:nav.speed*(sprint?nav.sprintMultiplier:1),deltaSeconds,fly:nav.mode==='fly'});
     if(intent.right||intent.forward||intent.up){
       this._navigationForward.set(0,0,-1).applyEuler(this.camera.rotation);this._navigationForward.y=0;if(this._navigationForward.lengthSq()<1e-8)this._navigationForward.set(0,0,-1);this._navigationForward.normalize();
       this._navigationRight.crossVectors(this._navigationForward,new T.Vector3(0,1,0)).normalize();

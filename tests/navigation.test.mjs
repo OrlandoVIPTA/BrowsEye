@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyDeadzone, gamepadNavigationFrame, movementIntent } from '../src/navigation.js';
+import { applyDeadzone, detectGamepadProfile, gamepadNavigationFrame, movementIntent } from '../src/navigation.js';
 
 test('deadzone removes controller drift and rescales remaining input', () => {
   assert.equal(applyDeadzone(.12, .16), 0);
@@ -28,6 +28,14 @@ test('supports D-pad walking and standard left-stick-click sprint', () => {
   assert.ok(frame.lookX > 0);
   assert.ok(frame.lookY < 0);
   assert.equal(frame.sprint, true);
+});
+
+test('keeps a legacy Xbox trigger axis out of the right-stick look input', () => {
+  const gamepad = { connected: true, axes: [0, 0, -1, .65, -.5], buttons: [] };
+  assert.equal(detectGamepadProfile(gamepad), 'legacy-trigger-axis');
+  const frame = gamepadNavigationFrame(gamepad, { profile: 'legacy-trigger-axis' });
+  assert.ok(frame.lookX > 0);
+  assert.ok(frame.lookY < 0);
 });
 
 test('diagonal walking is normalised and walk mode remains on the ground', () => {

@@ -21,16 +21,29 @@ const buttonValue = (buttons, index) => {
 const combineAxis = (stick, buttonAxis) => Math.abs(stick) > .001 ? stick : buttonAxis;
 
 /**
+ * Some Windows drivers expose an otherwise normal Xbox pad through the older
+ * DirectInput layout: axis 2 is then the combined LT/RT axis and the right
+ * stick lives on axes 3/4.  Detect that neutral trigger axis once at connect
+ * time, before a held trigger can be mistaken for looking around.
+ */
+export function detectGamepadProfile(gamepad) {
+  const axes = gamepad?.axes || [];
+  const thirdAxis = Number(axes[2]) || 0;
+  return axes.length >= 5 && Math.abs(thirdAxis) >= .96 ? 'legacy-trigger-axis' : 'standard';
+}
+
+/**
  * Normalises a W3C Gamepad object into navigation intentions. It does not
  * depend on a manufacturer SDK and is safe to call with absent/partial pads.
  */
-export function gamepadNavigationFrame(gamepad, { deadzone = .16 } = {}) {
+export function gamepadNavigationFrame(gamepad, { deadzone = .16, profile = 'standard' } = {}) {
   if (!gamepad?.connected) return { connected: false, moveX: 0, forward: 0, lookX: 0, lookY: 0, rise: 0, sprint: false };
   const axes = gamepad.axes || [];
   const leftX = applyDeadzone(axes[0], deadzone);
   const leftY = applyDeadzone(axes[1], deadzone);
-  const rightX = applyDeadzone(axes[2], deadzone);
-  const rightY = applyDeadzone(axes[3], deadzone);
+  // In the legacy profile the trigger axis must never become a look axis.
+  const rightX = applyDeadzone(axes[profile === 'legacy-trigger-axis' ? 3 : 2], deadzone);
+  const rightY = applyDeadzone(axes[profile === 'legacy-trigger-axis' ? 4 : 3], deadzone);
   // D-pad remains useful for accessibility and controllers whose left stick
   // is worn or temporarily unavailable. Standard mapping: 12/13/14/15 are
   // up/down/left/right.
