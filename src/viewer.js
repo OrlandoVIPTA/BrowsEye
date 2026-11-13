@@ -4,7 +4,7 @@ import { StereoOutput } from './stereo.js';
 import { disposeObject } from './geometry.js';
 import { detectGamepadProfile, gamepadNavigationFrame, movementIntent } from './navigation.js';
 export class Viewer{
-  constructor(container,onStats,onSelect,onError){
+  constructor(container,onStats,onSelect,onError,onNavigationChange=()=>{}){
     this.container=container;this.scene=new T.Scene();this.scene.background=new T.Color(0x17242a);
     this.renderer=new T.WebGLRenderer({antialias:false,powerPreference:'high-performance',preserveDrawingBuffer:true});
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));this.renderer.outputColorSpace=T.SRGBColorSpace;this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.25;
@@ -14,17 +14,18 @@ export class Viewer{
     this.output=new StereoOutput(this.renderer);this.strength=30;this.convergence=0;this.root=new T.Group();this.scene.add(this.root);
     this.scene.add(new T.HemisphereLight(0xcbe8f5,0x48534b,2.5));const light=new T.DirectionalLight(0xfff1d3,3.2);light.position.set(7,12,8);this.scene.add(light);const fill=new T.DirectionalLight(0x9ec4ed,1.8);fill.position.set(-8,4,-5);this.scene.add(fill);
     this.grid=new T.GridHelper(40,40,0x44635f,0x2c3f43);this.grid.material.transparent=true;this.grid.material.opacity=.45;this.scene.add(this.grid);
-    this.clip=new T.Plane(new T.Vector3(-1,0,0),5);this.highlight=null;this.busySpark=false;this.onError=onError;this.streamingSession=null;
+    this.clip=new T.Plane(new T.Vector3(-1,0,0),5);this.highlight=null;this.busySpark=false;this.onError=onError;this.onNavigationChange=typeof onNavigationChange==='function'?onNavigationChange:()=>{};this.streamingSession=null;
     // Navigation deliberately has no dependency on a specific controller brand.
     // It consumes the browser's standard Gamepad mapping, while an optional
     // streaming/scan adapter can supply accurate collision data synchronously.
-    this.navigation={mode:'orbit',keys:new Set(),yaw:0,pitch:0,speed:1.8,sprintMultiplier:1.8,lookSensitivity:.0022,gamepadLookSensitivity:1.65,deadzone:.2,groundY:0,eyeHeight:1.65,radius:.22,collisionProvider:null,collisionMesh:null,spawn:null,stereoIpd:.064,stereoFocus:2.5,pointerLockBlocked:false,gamepadId:null,gamepadProfile:'standard',gamepadProfilePreference:'auto'};
+    this.navigation={mode:'orbit',keys:new Set(),yaw:0,pitch:0,speed:1.8,sprintMultiplier:1.8,lookSensitivity:.0022,gamepadLookSensitivity:1.65,deadzone:.2,groundY:0,eyeHeight:1.65,radius:.22,collisionProvider:null,collisionMesh:null,spawn:null,stereoIpd:.064,stereoFocus:2.5,pointerLockBlocked:false,gamepadId:null,gamepadProfile:'standard',gamepadProfilePreference:'auto',gamepadCalibration:null};
     this._navigationForward=new T.Vector3();this._navigationRight=new T.Vector3();this._navigationDown=new T.Vector3(0,-1,0);this._navigationRaycaster=new T.Raycaster();this._navigationGroundRaycaster=new T.Raycaster();
     this._onNavigationKeyDown=e=>{if(this.navigation.mode==='orbit'||/INPUT|SELECT|TEXTAREA/.test(e.target?.tagName||''))return;if(['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','ShiftLeft','ShiftRight'].includes(e.code)){this.navigation.keys.add(e.code);e.preventDefault();}};
     this._onNavigationKeyUp=e=>{this.navigation.keys.delete(e.code);};
     this._navigationDrag=null;
     this._isNavigationPointerLocked=()=>document.pointerLockElement===this.renderer.domElement;
     this._updateNavigationPointerClass=()=>{const canvas=this.renderer.domElement;canvas.classList.toggle('navigation-look',this._isNavigationPointerLocked());canvas.classList.toggle('navigation-drag',!!this._navigationDrag&&!this._isNavigationPointerLocked());};
+    this._notifyNavigationState=()=>this.onNavigationChange(this.getNavigationState());
     this._onNavigationMouseMove=e=>{if(this._isNavigationPointerLocked()&&this.navigation.mode!=='orbit')this.applyFirstPersonLook(e.movementX,e.movementY);};
     this._onNavigationPointerMove=e=>{
       const drag=this._navigationDrag;
@@ -33,8 +34,9 @@ export class Viewer{
       const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
       if(dx||dy)this.applyFirstPersonLook(dx,dy);
     };
-    this._onNavigationPointerLockChange=()=>{if(this._isNavigationPointerLocked()){this.navigation.pointerLockBlocked=false;this._endNavigationDrag();}this._updateNavigationPointerClass();};
-    window.addEventListener('keydown',this._onNavigationKeyDown);window.addEventListener('keyup',this._onNavigationKeyUp);document.addEventListener('mousemove',this._onNavigationMouseMove);document.addEventListener('pointerlockchange',this._onNavigationPointerLockChange);
+    this._onNavigationPointerLockChange=()=>{if(this._isNavigationPointerLocked()){this.navigation.pointerLockBlocked=false;this._endNavigationDrag();}this._updateNavigationPointerClass();this._notifyNavigationState();};
+    this._onNavigationPointerLockError=()=>{if(this.navigation.mode!=='orbit'){this.navigation.pointerLockBlocked=true;this._updateNavigationPointerClass();this._notifyNavigationState();}};
+    window.addEventListener('keydown',this._onNavigationKeyDown);window.addEventListener('keyup',this._onNavigationKeyUp);document.addEventListener('mousemove',this._onNavigationMouseMove);document.addEventListener('pointerlockchange',this._onNavigationPointerLockChange);document.addEventListener('pointerlockerror',this._onNavigationPointerLockError);
     this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(container);this.resize();
     let start=0,frames=0,lastFrame=0;this.renderer.setAnimationLoop(time=>{try{
       const delta=Math.min(.1,Math.max(0,(time-lastFrame)/1000));lastFrame=time;
@@ -157,7 +159,7 @@ export class Viewer{
     if(mode==='orbit'){
       nav.mode='orbit';nav.keys.clear();this._endNavigationDrag();this.controls.enabled=true;
       if(document.pointerLockElement===this.renderer.domElement)document.exitPointerLock?.();
-      return this.getNavigationState();
+      const state=this.getNavigationState();this._notifyNavigationState();return state;
     }
     if(nav.mode==='orbit')this._captureNavigationAngles();
     // An orbit view commonly looks down onto a model.  Carrying that pitch to
@@ -167,14 +169,26 @@ export class Viewer{
     nav.mode=mode;this.controls.enabled=false;
     if(settings.reset!==false&&nav.spawn)this.camera.position.copy(nav.spawn);
     if(mode==='walk'&&!nav.collisionProvider)this._snapWalkToGround(this.camera.position);
-    this._applyNavigationPose();return this.getNavigationState();
+    this._applyNavigationPose();const state=this.getNavigationState();this._notifyNavigationState();return state;
   }
-  getNavigationState(){const n=this.navigation,providerCollision=typeof n.collisionProvider?.hasCollision==='function'?n.collisionProvider.hasCollision():!!n.collisionProvider;return{mode:n.mode,speed:n.speed,groundY:n.groundY,eyeHeight:n.eyeHeight,hasCollision:!!(providerCollision||n.collisionMesh),hasSpawn:!!n.spawn,pointerLocked:this._isNavigationPointerLocked(),pointerLockBlocked:n.pointerLockBlocked,gamepadProfile:n.gamepadProfilePreference==='auto'?n.gamepadProfile:n.gamepadProfilePreference,gamepadProfilePreference:n.gamepadProfilePreference};}
+  getNavigationState(){const n=this.navigation,providerCollision=typeof n.collisionProvider?.hasCollision==='function'?n.collisionProvider.hasCollision():!!n.collisionProvider;return{mode:n.mode,speed:n.speed,groundY:n.groundY,eyeHeight:n.eyeHeight,hasCollision:!!(providerCollision||n.collisionMesh),hasSpawn:!!n.spawn,pointerLocked:this._isNavigationPointerLocked(),pointerLockBlocked:n.pointerLockBlocked,gamepadProfile:n.gamepadProfilePreference==='auto'?n.gamepadProfile:n.gamepadProfilePreference,gamepadProfilePreference:n.gamepadProfilePreference,hasGamepadCalibration:!!n.gamepadCalibration};}
   navigationState(){return this.getNavigationState();}
   configureNavigation(settings={}){return this.setNavigationMode(settings.mode||this.navigation.mode,settings);}
   setGamepadProfile(profile='auto'){
     if(!['auto','standard','legacy-trigger-axis'].includes(profile))throw new Error('Unbekanntes Controller-Profil.');
     this.navigation.gamepadProfilePreference=profile;
+    return this.getNavigationState();
+  }
+  gamepadSnapshot(){
+    const gamepad=this._firstConnectedGamepad();
+    if(!gamepad)return null;
+    return {id:gamepad.id,index:gamepad.index,mapping:gamepad.mapping||'',axes:Array.from(gamepad.axes||[],value=>Number.isFinite(value)?value:0)};
+  }
+  setGamepadCalibration(calibration=null){
+    if(calibration===null){this.navigation.gamepadCalibration=null;return this.getNavigationState();}
+    const binding=value=>Number.isInteger(value?.index)&&value.index>=0&&Number.isFinite(value?.neutral)&&[1,-1].includes(value?.sign);
+    if(typeof calibration?.id!=='string'||!binding(calibration.lookX)||!binding(calibration.lookY)||calibration.lookX.index===calibration.lookY.index)throw new Error('Die Controller-Kalibrierung enthält keine zwei gültigen rechten Stick-Achsen.');
+    this.navigation.gamepadCalibration={id:calibration.id,lookX:{...calibration.lookX},lookY:{...calibration.lookY}};
     return this.getNavigationState();
   }
   setNavigationSpeed(speed){if(!Number.isFinite(speed)||speed<=0)throw new Error('Die Gehgeschwindigkeit muss größer als Null sein.');this.navigation.speed=speed;return speed;}
@@ -192,7 +206,7 @@ export class Viewer{
   resetWalkPosition(){if(!this.navigation.spawn)return false;this.camera.position.copy(this.navigation.spawn);this._applyNavigationPose();return true;}
   requestNavigationPointerLock(){
     if(this.navigation.mode==='orbit')return false;
-    try{const result=this.renderer.domElement.requestPointerLock?.();if(result?.catch)result.catch(()=>{this.navigation.pointerLockBlocked=true;this._updateNavigationPointerClass();});return !!result||typeof this.renderer.domElement.requestPointerLock==='function';}catch{this.navigation.pointerLockBlocked=true;this._updateNavigationPointerClass();return false;}
+    try{const result=this.renderer.domElement.requestPointerLock?.();if(result?.catch)result.catch(()=>{this.navigation.pointerLockBlocked=true;this._updateNavigationPointerClass();this._notifyNavigationState();});return !!result||typeof this.renderer.domElement.requestPointerLock==='function';}catch{this.navigation.pointerLockBlocked=true;this._updateNavigationPointerClass();this._notifyNavigationState();return false;}
   }
   applyFirstPersonLook(deltaX,deltaY){
     if(this.navigation.mode==='orbit'||!Number.isFinite(deltaX)||!Number.isFinite(deltaY))return;
@@ -231,7 +245,8 @@ export class Viewer{
     const id=gamepad?`${gamepad.index}:${gamepad.id}`:null;
     if(id!==nav.gamepadId){nav.gamepadId=id;nav.gamepadProfile=gamepad?detectGamepadProfile(gamepad):'standard';}
     const profile=nav.gamepadProfilePreference==='auto'?nav.gamepadProfile:nav.gamepadProfilePreference;
-    return gamepadNavigationFrame(gamepad,{deadzone:nav.deadzone,profile});
+    const calibration=nav.gamepadCalibration?.id===gamepad?.id?nav.gamepadCalibration:null;
+    return gamepadNavigationFrame(gamepad,{deadzone:nav.deadzone,profile,calibration});
   }
   _updateFirstPerson(deltaSeconds){
     if(!deltaSeconds)return;

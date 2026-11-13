@@ -38,6 +38,15 @@ test('keeps a legacy Xbox trigger axis out of the right-stick look input', () =>
   assert.ok(frame.lookY < 0);
 });
 
+test('uses two explicitly calibrated axes and ignores unrelated trigger axes', () => {
+  const gamepad = { connected: true, axes: [0, 0, .9, -.15, .7, 0], buttons: [] };
+  const frame = gamepadNavigationFrame(gamepad, {
+    calibration: { lookX: { index: 4, neutral: .1, sign: 1 }, lookY: { index: 3, neutral: .05, sign: -1 } },
+  });
+  assert.ok(frame.lookX > 0.5);
+  assert.ok(frame.lookY > 0);
+});
+
 test('diagonal walking is normalised and walk mode remains on the ground', () => {
   const walk = movementIntent({ moveX: 1, forward: 1, rise: 1 }, { speed: 4, deltaSeconds: .5, fly: false });
   assert.ok(Math.abs(Math.hypot(walk.right, walk.forward) - 2) < 1e-9);

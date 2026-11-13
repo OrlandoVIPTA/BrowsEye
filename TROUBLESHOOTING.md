@@ -20,6 +20,16 @@ In einer eingebetteten Web-Vorschau kann der umgebende Website-Betreiber den fre
 
 BrowsEye nutzt die normale Gamepad-Unterstützung des Betriebssystems und Browsers. Xbox-, PlayStation-, Logitech- und viele andere Standard-Controller funktionieren deshalb ohne ein Hersteller-SDK, sofern Windows sie als Gamepad erkennt. Wenn ein Controller nach dem Verbinden nicht erscheint, Browser beziehungsweise Player schließen, den Controller verbinden und den Player erneut starten.
 
+### LT/RT drehen die Ansicht oder der rechte Stick arbeitet nur teilweise
+
+Unter **Begehung & Controller** auf **Rechten Stick kalibrieren** klicken. Dabei unbedingt genau diese drei Schritte durchführen:
+
+1. Alle Sticks und Trigger loslassen und einmal klicken.
+2. Ausschließlich den rechten Stick nach **rechts** halten und **Horizontale Achse übernehmen** klicken.
+3. Ausschließlich den rechten Stick nach **unten** halten und **Vertikale Achse übernehmen** klicken.
+
+Danach nutzt BrowsEye nur die zwei wirklich gemessenen rechten Stick-Achsen. LT/RT dürfen in **Ego-Perspektive am Boden** weder Blick noch Position verändern; im Modus **Freies Fliegen** steuern sie ausschließlich die Höhe. Falls die Messung versehentlich mit einem gedrückten Trigger erfolgt ist, **Kalibrierung zurücksetzen** wählen und wiederholen.
+
 ## WASD bewegt nicht
 
 - Die Steuerung greift nur im Modus **Ego-Perspektive am Boden** oder **Freies Fliegen**.

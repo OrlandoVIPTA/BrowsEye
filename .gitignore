@@ -6,6 +6,7 @@ test-results/
 # Erzeugte Player- und Web-Ausgaben: Sie werden aus dem Quellcode gebaut.
 dist/
 release/
+release-*/
 artifacts/
 output/
 build/

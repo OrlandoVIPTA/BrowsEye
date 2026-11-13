@@ -52,6 +52,16 @@ Nach einem Klick versucht BrowsEye den freien Gaming-Mausblick (**Pointer Lock**
 
 Ein Browser, eine eingebettete Vorschau oder eine Sicherheitsrichtlinie kann diesen freien Modus ablehnen. Dann bleibt die Bedienung trotzdem vollständig nutzbar: In der 3D-Szene die **linke Maustaste gedrückt halten und ziehen**, um sich umzusehen. Der rechte Controller-Stick funktioniert unabhängig davon weiter. Der Controller verwendet die übliche System-/Browser-Gamepad-Belegung; bei der ersten Nutzung gegebenenfalls einmal eine Taste drücken. Eine verständliche Fehlerhilfe steht in [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
+### Xbox: rechter Stick einmal exakt einmessen
+
+Einzelne Windows-/Treiberkombinationen melden Trigger- und Stick-Achsen anders als ein Standard-Xbox-Controller. Falls LT/RT den Blick beeinflussen oder der rechte Stick nicht sauber in beide Richtungen dreht, in **Begehung & Controller** auf **Rechten Stick kalibrieren** klicken:
+
+1. Alle Sticks und Trigger loslassen und einmal klicken.
+2. Nur den rechten Stick nach **rechts** halten und **Horizontale Achse übernehmen** klicken.
+3. Nur den rechten Stick nach **unten** halten und **Vertikale Achse übernehmen** klicken.
+
+BrowsEye speichert danach ausschließlich diese zwei gemessenen Achsen für diesen Controller. In der Ego-Perspektive bleiben LT/RT ohne Wirkung; nur im Modus **Freies Fliegen** steuern sie die Höhe. Die Schaltfläche **Kalibrierung zurücksetzen** entfernt die Zuordnung wieder.
+
 ## Berührungsfreie Museumssteuerung
 
 Unter **Perspektive → Berührungsfreie Steuerung** kann eine normale USB-Webcam eingeschaltet werden. Die Kamera darf oberhalb oder unterhalb des Displays sitzen; die Auswahl dient der dokumentierten Stationskonfiguration. MediaPipe verarbeitet die Kamerabilder samt Hand-Landmarken ausschließlich lokal auf der Workstation. Es gibt keinen Upload und keine Cloud-Verbindung.
