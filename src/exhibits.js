@@ -214,10 +214,10 @@ export const sampleExhibits = Object.freeze([
   validateExhibit({
     schema: EXHIBIT_SCHEMA, id: 'vipta.demo.atrium', version: '1.0.0',
     title: { de: 'Digitaler Ausstellungsraum', en: 'Digital Exhibition Space' },
-    summary: { de: 'Eine kuratierte Architekturstudie für die BrowsEye-Vorschau.', en: 'A curated architecture study for the BrowsEye preview.' },
+    summary: { de: 'Eine kuratierte Architekturstudie für den BrowsEye-Standard.', en: 'A curated architecture study for the BrowsEye standard build.' },
     source: { kind: 'demo', id: 'atrium' },
     metadata: { institution: 'VIPTA GmbH', originalFormat: 'Prozedurales Demonstrationsmodell', category: 'Demonstrator' },
-    rights: { status: 'demo-content', holder: 'VIPTA GmbH', credit: 'BrowsEye Preview · kein Museumsobjekt', usage: { de: 'Nur zur Demonstration der Software.', en: 'For software demonstration only.' } },
+    rights: { status: 'demo-content', holder: 'VIPTA GmbH', credit: 'BrowsEye Standard · kein Museumsobjekt', usage: { de: 'Nur zur Demonstration der Software.', en: 'For software demonstration only.' } },
     story: [
       { id: 'overview', title: { de: 'Der Raum', en: 'The space' }, text: { de: 'Drehen und erkunden Sie das Modell frei.', en: 'Rotate and explore the model freely.' }, camera: { target: [0, 1.8, 0], distance: 10 } },
       { id: 'atrium', title: { de: 'Der Lichthof', en: 'The atrium' }, text: { de: 'Die offene Mitte verbindet die Geschosse.', en: 'The open centre connects the floors.' }, camera: { target: [0, 2.2, 0], distance: 5.5 } },

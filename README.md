@@ -1,7 +1,7 @@
 # BrowsEye by VIPTA GmbH
 
-> **Öffentliche Entwicklungs-Preview · nicht für den kommerziellen Einsatz**  
-> Dieser Stand dient Entwicklung, Tests, Forschung und der technischen Partner-Evaluierung. Er ist kein fertiges Produkt, kein Angebot und keine Freigabe für einen kommerziellen Betrieb. Details stehen in [LICENSE](LICENSE).
+> **BrowsEye Standard 1.0 · öffentlicher Open-Development-Referenzstand · nicht für den kommerziellen Einsatz**  
+> „Standard“ bezeichnet den von VIPTA freigegebenen Referenzstand für Entwicklung, Tests, Forschung und die technische Partner-Evaluierung. Er ist kein kommerzielles Produkt, kein Angebot und keine Freigabe für einen kommerziellen Betrieb. Details stehen in [LICENSE](LICENSE).
 
 BrowsEye ist die lokale und webfähige Präsentationsschicht für 3D-Exponate und Digital Twins. Ein Exponat kann auf einem normalen Bildschirm, in einem Browser, im Museums-Kiosk oder stereoskopisch auf einem StereoVisor gezeigt werden.
 
@@ -19,7 +19,7 @@ Die Software lädt keine Dateien in eine Cloud hoch. Für professionelle Ausstel
 
 ## Für eine Vorführung starten
 
-1. Für die Windows-Anwendung `Start-BrowsEye-Player.bat` doppelklicken. Für eine Ausstellung ohne Bedienleisten gibt es `Start-BrowsEye-Kiosk.bat`.
+1. Für die Windows-Anwendung `release/win-unpacked/BrowsEye Player.exe` doppelklicken. Für eine Ausstellung ohne Bedienleisten steht der Kiosk-Startmodus zur Verfügung.
 2. In BrowsEye ein Beispiel wählen oder eigene Dateien öffnen.
 3. Für den StereoVisor unter **Perspektive** das gewünschte Ausgabeformat auswählen.
 4. Das Fenster auf den StereoVisor ziehen und **Präsentieren** wählen.
@@ -73,7 +73,7 @@ Unter **Perspektive → Berührungsfreie Steuerung** kann eine normale USB-Webca
 
 Für eine ruhige Ausstellung sollte jeweils nur eine Person gleichzeitig steuern. Die Live-Abnahme mit der vorgesehenen USB-Webcam, Montagehöhe, Raumlicht und dem echten StereoVisor bleibt Teil der Stationsinstallation.
 
-Die fertige Workstation-Anwendung liegt unter `release/win-unpacked/BrowsEye Player.exe`. `Start-BrowsEye.bat` startet weiterhin die Browser-Version für Vorschau und Entwicklung. `npm run build` erzeugt die lokale Browser-Version unter `dist/`. `npm start` startet diese Version auf `http://localhost:4174`.
+Die fertige Workstation-Anwendung liegt unter `release/win-unpacked/BrowsEye Player.exe`. Für die lokale Browser-Entwicklung erzeugt `npm run build` die Web-Version unter `dist/`; `npm start` startet sie auf `http://localhost:4174`.
 
 ## Entwicklungsbausteine
 
@@ -84,11 +84,11 @@ Die fertige Workstation-Anwendung liegt unter `release/win-unpacked/BrowsEye Pla
 
 ## Aktueller Stand
 
-Die Preview kann Modelle, Punktwolken, Splats, IFC, STEP/IGES/BREP, einfache Moleküle und einen klar begrenzten DICOM-Teil lokal darstellen. Die Formatübersicht in der Anwendung sagt bei jedem Format ausdrücklich, ob es direkt unterstützt wird oder einen Export benötigt.
+Der aktuelle Standard kann Modelle, Punktwolken, Splats, IFC, STEP/IGES/BREP, einfache Moleküle und einen klar begrenzten DICOM-Teil lokal darstellen. Die Formatübersicht in der Anwendung sagt bei jedem Format ausdrücklich, ob es direkt unterstützt wird oder einen Export benötigt.
 
 Die eigentliche Ausstellung arbeitet mit einem kleinen Manifest. Es enthält Titel, Beschreibung, Rechte, Herkunft, Sprache und erzählte Stationen, während das Modell selbst austauschbar bleibt. Die genaue Struktur steht in [EXHIBIT-PACKAGE.md](EXHIBIT-PACKAGE.md).
 
-## Bewusste Grenzen der Preview
+## Bekannte Grenzen des aktuellen Standards
 
 - Revit, SolidWorks, CATIA, GEOVIA, PyMOL- und Schrödinger-Projekte werden noch nicht direkt gelesen. Sie werden über offene Austauschformate oder lizenzierte Konverter angebunden.
 - Medizinische Daten sind ausschließlich eine technische Forschungsansicht und nicht diagnostisch validiert.
