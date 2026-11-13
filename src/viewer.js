@@ -18,7 +18,7 @@ export class Viewer{
     // Navigation deliberately has no dependency on a specific controller brand.
     // It consumes the browser's standard Gamepad mapping, while an optional
     // streaming/scan adapter can supply accurate collision data synchronously.
-    this.navigation={mode:'orbit',keys:new Set(),yaw:0,pitch:0,speed:1.8,sprintMultiplier:1.8,lookSensitivity:.0022,gamepadLookSensitivity:1.65,deadzone:.2,groundY:0,eyeHeight:1.65,radius:.22,collisionProvider:null,collisionMesh:null,spawn:null,stereoIpd:.064,stereoFocus:2.5,pointerLockBlocked:false,gamepadId:null,gamepadProfile:'standard'};
+    this.navigation={mode:'orbit',keys:new Set(),yaw:0,pitch:0,speed:1.8,sprintMultiplier:1.8,lookSensitivity:.0022,gamepadLookSensitivity:1.65,deadzone:.2,groundY:0,eyeHeight:1.65,radius:.22,collisionProvider:null,collisionMesh:null,spawn:null,stereoIpd:.064,stereoFocus:2.5,pointerLockBlocked:false,gamepadId:null,gamepadProfile:'standard',gamepadProfilePreference:'auto'};
     this._navigationForward=new T.Vector3();this._navigationRight=new T.Vector3();this._navigationDown=new T.Vector3(0,-1,0);this._navigationRaycaster=new T.Raycaster();this._navigationGroundRaycaster=new T.Raycaster();
     this._onNavigationKeyDown=e=>{if(this.navigation.mode==='orbit'||/INPUT|SELECT|TEXTAREA/.test(e.target?.tagName||''))return;if(['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','ShiftLeft','ShiftRight'].includes(e.code)){this.navigation.keys.add(e.code);e.preventDefault();}};
     this._onNavigationKeyUp=e=>{this.navigation.keys.delete(e.code);};
@@ -52,6 +52,15 @@ export class Viewer{
     this.renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();this.renderer.setAnimationLoop(null);onError('Grafikspeicher-Kontext verloren. Bitte die Seite neu laden oder eine kleinere Datei verwenden.');});
   }
   resize(){const r=this.container.getBoundingClientRect();this.renderer.setSize(Math.max(1,r.width),Math.max(1,r.height));this.camera.aspect=r.width/Math.max(1,r.height);this.camera.updateProjectionMatrix();}
+  setOutputMode(mode){
+    if(!['mono','sbs','tb','rows','left','right'].includes(mode))throw new Error('Unbekanntes Ausgabeformat.');
+    this.output.mode=mode;
+    // Calibration deliberately owns the output until it is turned off. Clear
+    // it here so switching back to 2D can never leave a stale stereo frame.
+    this.output.calibration=false;
+    this.renderer.setRenderTarget(null);this.renderer.clear(true,true,true);
+    return mode;
+  }
   _beginNavigationDrag(event){
     if(this.navigation.mode==='orbit'||event.button!==0)return false;
     this._navigationDrag={pointerId:event.pointerId,x:event.clientX,y:event.clientY};
@@ -160,9 +169,14 @@ export class Viewer{
     if(mode==='walk'&&!nav.collisionProvider)this._snapWalkToGround(this.camera.position);
     this._applyNavigationPose();return this.getNavigationState();
   }
-  getNavigationState(){const n=this.navigation,providerCollision=typeof n.collisionProvider?.hasCollision==='function'?n.collisionProvider.hasCollision():!!n.collisionProvider;return{mode:n.mode,speed:n.speed,groundY:n.groundY,eyeHeight:n.eyeHeight,hasCollision:!!(providerCollision||n.collisionMesh),hasSpawn:!!n.spawn,pointerLocked:this._isNavigationPointerLocked(),pointerLockBlocked:n.pointerLockBlocked};}
+  getNavigationState(){const n=this.navigation,providerCollision=typeof n.collisionProvider?.hasCollision==='function'?n.collisionProvider.hasCollision():!!n.collisionProvider;return{mode:n.mode,speed:n.speed,groundY:n.groundY,eyeHeight:n.eyeHeight,hasCollision:!!(providerCollision||n.collisionMesh),hasSpawn:!!n.spawn,pointerLocked:this._isNavigationPointerLocked(),pointerLockBlocked:n.pointerLockBlocked,gamepadProfile:n.gamepadProfilePreference==='auto'?n.gamepadProfile:n.gamepadProfilePreference,gamepadProfilePreference:n.gamepadProfilePreference};}
   navigationState(){return this.getNavigationState();}
   configureNavigation(settings={}){return this.setNavigationMode(settings.mode||this.navigation.mode,settings);}
+  setGamepadProfile(profile='auto'){
+    if(!['auto','standard','legacy-trigger-axis'].includes(profile))throw new Error('Unbekanntes Controller-Profil.');
+    this.navigation.gamepadProfilePreference=profile;
+    return this.getNavigationState();
+  }
   setNavigationSpeed(speed){if(!Number.isFinite(speed)||speed<=0)throw new Error('Die Gehgeschwindigkeit muss größer als Null sein.');this.navigation.speed=speed;return speed;}
   setNavigationCollisionProvider(provider){
     if(provider!==null&&provider!==undefined&&typeof provider.resolveMove!=='function')throw new Error('Ein Kollisionsanbieter benötigt eine synchrone resolveMove-Funktion.');
@@ -216,7 +230,8 @@ export class Viewer{
     const gamepad=this._firstConnectedGamepad(),nav=this.navigation;
     const id=gamepad?`${gamepad.index}:${gamepad.id}`:null;
     if(id!==nav.gamepadId){nav.gamepadId=id;nav.gamepadProfile=gamepad?detectGamepadProfile(gamepad):'standard';}
-    return gamepadNavigationFrame(gamepad,{deadzone:nav.deadzone,profile:nav.gamepadProfile});
+    const profile=nav.gamepadProfilePreference==='auto'?nav.gamepadProfile:nav.gamepadProfilePreference;
+    return gamepadNavigationFrame(gamepad,{deadzone:nav.deadzone,profile});
   }
   _updateFirstPerson(deltaSeconds){
     if(!deltaSeconds)return;
